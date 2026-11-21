@@ -64,7 +64,8 @@ class WorkerThread {
     worker.on('error', (error) => (cause = error))
     worker.on('exit', (code) => {
       this.hasExited = true
-      const reason = cause instanceof Error ? cause.message : `exit code ${code}`
+      const reason =
+        cause instanceof Error ? cause.message : `exit code ${code}`
       const message = `Database ${role} stopped: ${reason}`
       markFailed(new Error(message))
       for (const settle of this.pending.values()) {
@@ -159,7 +160,10 @@ export async function openDbClient(options: {
     async call(name, input) {
       if (closing) return failure('unavailable', 'Database is closed')
       if (!isOperationName(name)) {
-        return failure('unknown_operation', `Unknown operation: ${String(name)}`)
+        return failure(
+          'unknown_operation',
+          `Unknown operation: ${String(name)}`
+        )
       }
       const operation = operations[name]
       const parsed = operation.input.safeParse(input)

@@ -159,8 +159,14 @@ try {
 }
 
 try {
-  const files = readdirSync(userData).filter((file) => file.startsWith('app.db'))
-  assert.deepEqual(files, ['app.db'], 'expected a clean shutdown to fold the WAL')
+  const files = readdirSync(userData).filter((file) =>
+    file.startsWith('app.db')
+  )
+  assert.deepEqual(
+    files,
+    ['app.db'],
+    'expected a clean shutdown to fold the WAL'
+  )
   console.log(`\nsmoke: ok (${target})`)
 } finally {
   rmSync(userData, { recursive: true, force: true })

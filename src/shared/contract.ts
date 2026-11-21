@@ -105,8 +105,7 @@ export interface DbErrorShape {
 }
 
 export type DbResult<T> =
-  | { ok: true; output: T }
-  | { ok: false; error: DbErrorShape }
+  { ok: true; output: T } | { ok: false; error: DbErrorShape }
 
 export class DbError extends Error {
   readonly code: DbErrorCode

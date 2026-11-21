@@ -11,7 +11,9 @@ const two: Migration = { name: 'two', sql: 'CREATE TABLE two (x)' }
 
 const tables = (db: Database.Database) =>
   db
-    .prepare("SELECT name FROM sqlite_schema WHERE type = 'table' ORDER BY name")
+    .prepare(
+      "SELECT name FROM sqlite_schema WHERE type = 'table' ORDER BY name"
+    )
     .pluck()
     .all()
 
@@ -41,7 +43,9 @@ describe('migrate', () => {
       sql: 'CREATE TABLE two (x); INSERT INTO missing VALUES (1);',
     }
 
-    expect(() => migrate(db, [one, broken])).toThrow(/broken.*no such table: missing/)
+    expect(() => migrate(db, [one, broken])).toThrow(
+      /broken.*no such table: missing/
+    )
 
     expect(tables(db)).toEqual(['one'])
     expect(schemaVersion(db)).toBe(1)

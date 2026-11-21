@@ -36,7 +36,11 @@ async function call<N extends OperationName>(
 }
 
 const day = (n: number) => new Date(Date.UTC(2026, 0, 1 + n)).toISOString()
-const checking = { name: 'Checking', kind: 'checking', currency: 'USD' } as const
+const checking = {
+  name: 'Checking',
+  kind: 'checking',
+  currency: 'USD',
+} as const
 
 beforeEach(() => {
   dir = fs.mkdtempSync(path.join(os.tmpdir(), 'opulent-threads-'))
@@ -76,7 +80,9 @@ describe('real worker threads', () => {
         amountMinor: n,
       })
     )
-    const lastWrite = writes[writes.length - 1].then(() => settled.push('write'))
+    const lastWrite = writes[writes.length - 1].then(() =>
+      settled.push('write')
+    )
     const read = call('accounts.list', {}).then(() => settled.push('read'))
     await Promise.all([lastWrite, read])
 

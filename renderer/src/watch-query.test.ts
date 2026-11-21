@@ -88,7 +88,12 @@ describe('watchQuery', () => {
   it('goes quiet once stopped', async () => {
     const { db, reply, change, subscribers } = fakeDb()
     const listener = vi.fn()
-    const stop = watchQuery(db, 'accountValues.history', { accountId: 3 }, listener)
+    const stop = watchQuery(
+      db,
+      'accountValues.history',
+      { accountId: 3 },
+      listener
+    )
 
     stop()
     await reply(0, ok(['a']))

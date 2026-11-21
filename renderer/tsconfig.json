@@ -4,15 +4,10 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
-    "types": [
-      "vite/client"
-    ],
+    "types": ["vite/client"],
     "rootDir": "..",
     "noEmit": true
   },
-  "include": [
-    "src",
-    "../src/shared"
-  ],
+  "include": ["src", "../src/shared"],
   "exclude": []
 }

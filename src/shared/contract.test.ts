@@ -71,7 +71,10 @@ describe('isOperationName', () => {
     expect(isOperationName(name)).toBe(true)
   })
 
-  it.each(['accounts.drop', 'constructor', '', 7, null])('rejects %s', (name) => {
-    expect(isOperationName(name)).toBe(false)
-  })
+  it.each(['accounts.drop', 'constructor', '', 7, null])(
+    'rejects %s',
+    (name) => {
+      expect(isOperationName(name)).toBe(false)
+    }
+  )
 })

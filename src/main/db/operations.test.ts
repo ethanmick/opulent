@@ -10,7 +10,11 @@ beforeEach(() => {
   db = openTestDb()
 })
 
-const checking = { name: 'Checking', kind: 'checking', currency: 'USD' } as const
+const checking = {
+  name: 'Checking',
+  kind: 'checking',
+  currency: 'USD',
+} as const
 
 describe('accounts.create', () => {
   it('stores the full account number and nulls omitted details', () => {
@@ -29,7 +33,9 @@ describe('accounts.create', () => {
       openedOn: null,
       closedOn: null,
     })
-    expect(account.createdAt).toMatch(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/)
+    expect(account.createdAt).toMatch(
+      /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/
+    )
   })
 
   it('accepts every account kind the app knows about', () => {

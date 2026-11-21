@@ -20,7 +20,10 @@ function backUp(db: Connection, version: number): void {
  * Applies the migrations a database has not seen, one transaction each.
  * A migration's position in the list is its schema version.
  */
-export function migrate(db: Connection, migrations: readonly Migration[]): void {
+export function migrate(
+  db: Connection,
+  migrations: readonly Migration[]
+): void {
   const current = schemaVersion(db)
   if (current > migrations.length) {
     throw new Error(

@@ -12,5 +12,4 @@ export type WorkerRequest =
   | { type: 'close' }
 
 export type WorkerResponse =
-  | { type: 'ready' }
-  | { type: 'result'; id: number; result: DbResult<unknown> }
+  { type: 'ready' } | { type: 'result'; id: number; result: DbResult<unknown> }

@@ -188,7 +188,10 @@ describe('calling', () => {
       currency: 'dollars',
     })
 
-    expect(result).toMatchObject({ ok: false, error: { code: 'invalid_input' } })
+    expect(result).toMatchObject({
+      ok: false,
+      error: { code: 'invalid_input' },
+    })
     expect(result.ok === false && result.error.message).toMatch(/currency/)
     expect(workers.flatMap((w) => w.calls)).toEqual([])
   })
