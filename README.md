@@ -27,6 +27,7 @@ minimal-electron-bsql/
 ## Requirements
 
 - Node.js ≥ 22.12
+- pnpm 10 (`corepack enable` picks up the pinned version)
 - macOS, Windows or Linux on x64 or arm64. No native toolchain is needed: `better-sqlite3` ships N-API prebuilds for these platforms.
 
 ---
@@ -36,7 +37,7 @@ minimal-electron-bsql/
 ```bash
 git clone <this-repo>
 cd minimal-electron-bsql
-npm install
+pnpm install
 ```
 
 ℹ️ Since v13, `better-sqlite3` uses N-API, so its bundled prebuilt binary loads in any Electron version. There is no `electron-rebuild` step. The Electron binary itself downloads on the first `electron` run.
@@ -45,11 +46,11 @@ npm install
 
 Scripts
 
-- npm run dev → compile TS and start Electron in dev mode
-- npm run build → compile TypeScript only
-- npm run start → start Electron with compiled code
-- npm run dist → create distributable builds via electron-builder
-- npm run pack → package into unpacked app directory
+- pnpm dev → compile TS and start Electron in dev mode
+- pnpm build → compile TypeScript only
+- pnpm start → start Electron with compiled code
+- pnpm dist → create distributable builds via electron-builder
+- pnpm run pack → package into unpacked app directory
 
 ## What happens on startup
 
@@ -76,9 +77,9 @@ Packaging notes
 - Cross-arch builds (macOS): every build contains both `darwin-arm64.node` and `darwin-x64.node`, so any arch works:
 
 ```bash
-npm run dist -- --mac --arm64
-npm run dist -- --mac --x64
-npm run dist -- --mac --universal
+pnpm dist --mac --arm64
+pnpm dist --mac --x64
+pnpm dist --mac --universal
 ```
 
 - Universal builds need `mac.x64ArchFiles` to cover the darwin prebuilds, because they are identical in the x64 and arm64 halves.

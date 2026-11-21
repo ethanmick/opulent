@@ -9,9 +9,9 @@
     "dev:renderer": "vite",
     "dev:main": "tsc -w --preserveWatchOutput",
     "electron": "wait-on tcp:5173 && electron .",
-    "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:main\" \"npm:electron\"",
+    "dev": "concurrently -k \"pnpm:dev:renderer\" \"pnpm:dev:main\" \"pnpm:electron\"",
     "pack": "electron-builder --dir",
-    "dist": "npm run build && electron-builder"
+    "dist": "pnpm build && electron-builder"
   },
   "build": {
     "appId": "com.example.minimalbsqlite",
@@ -62,5 +62,11 @@
     "vite": "8.3.8",
     "wait-on": "9.5.1"
   },
-  "packageManager": "npm@11.16.0"
+  "packageManager": "pnpm@10.11.0",
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "better-sqlite3",
+      "electron-winstaller"
+    ]
+  }
 }
