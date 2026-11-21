@@ -77,6 +77,8 @@ Scripts
 
 - pnpm dev → compile TS and start Electron in dev mode
 - pnpm build → compile the main process and bundle the renderer
+- pnpm lint → lint with oxlint
+- pnpm format → format with Prettier (`pnpm format:check` only checks)
 - pnpm test → run the unit and worker-thread tests
 - pnpm typecheck → type-check main, tests and renderer
 - pnpm smoke dev → drive the dev build end to end (needs `pnpm dev:renderer` running)
