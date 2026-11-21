@@ -62,6 +62,13 @@ async function scenario() {
   return { account, list, history, invalid, missing, changes, page }
 }
 
+async function navigateAway() {
+  const page = location.href
+  location.href = 'https://example.com/'
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  return location.href === page
+}
+
 async function findPage() {
   for (let attempt = 0; attempt < 100; attempt++) {
     try {
@@ -132,7 +139,10 @@ try {
     await sleep(200)
   }
   const result = await evaluate(socket, `(${scenario})()`)
+  const stayedOnAppPage = await evaluate(socket, `(${navigateAway})()`)
   socket.close()
+
+  assert.equal(stayedOnAppPage, true, 'navigation away was not blocked')
 
   assert.equal(result.account.accountNumber, '000123456789')
   assert.equal(result.list.length, 1)

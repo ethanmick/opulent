@@ -3,6 +3,8 @@ import type { DbResult, TableName } from '../shared/contract'
 import type { DbClient } from './db/client'
 import { registerDbIpc } from './ipc'
 
+const PAGE = 'file:///Applications/opulent.app/renderer/dist/index.html'
+
 function setup() {
   let handler!: (event: unknown, ...args: unknown[]) => unknown
   let announce!: (tables: TableName[]) => void
@@ -12,13 +14,13 @@ function setup() {
     onChange: (listener) => ((announce = listener), () => {}),
     close: async () => {},
   }
-  const mainFrame = {}
+  const mainFrame = { url: PAGE }
   const webContents = { mainFrame, send: vi.fn() }
   const window = { webContents }
   registerDbIpc(
     { handle: (_channel, listener) => (handler = listener as typeof handler) },
     client,
-    () => [window] as never
+    { windows: () => [window] as never, pageUrl: PAGE }
   )
   return { handler, announce, client, result, mainFrame, webContents }
 }
@@ -41,7 +43,21 @@ describe('db:call', () => {
     const { handler, client, webContents } = setup()
 
     const reply = await handler(
-      { sender: webContents, senderFrame: {} },
+      { sender: webContents, senderFrame: { url: PAGE } },
+      'accounts.list',
+      {}
+    )
+
+    expect(reply).toMatchObject({ ok: false, error: { code: 'forbidden' } })
+    expect(client.call).not.toHaveBeenCalled()
+  })
+
+  it('refuses a call once the window shows a page that is not the app', async () => {
+    const { handler, client, mainFrame, webContents } = setup()
+    mainFrame.url = 'file:///Users/me/Downloads/evil.html'
+
+    const reply = await handler(
+      { sender: webContents, senderFrame: mainFrame },
       'accounts.list',
       {}
     )
@@ -52,7 +68,7 @@ describe('db:call', () => {
 
   it('refuses a call from web contents that are not an app window', async () => {
     const { handler, client } = setup()
-    const frame = {}
+    const frame = { url: PAGE }
 
     const reply = await handler(
       { sender: { mainFrame: frame }, senderFrame: frame },

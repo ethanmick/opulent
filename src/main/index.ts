@@ -1,12 +1,18 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+import { lockToPage } from './app-page'
 import { openDbClient, type DbClient } from './db/client'
 import { threadSpawner } from './db/spawn'
 import { registerDbIpc } from './ipc'
 
 const isDev = !app.isPackaged
 const READER_THREADS = 2
+const PAGE_URL = isDev
+  ? (process.env.VITE_DEV_SERVER_URL ?? 'http://localhost:5173')
+  : pathToFileURL(path.join(app.getAppPath(), 'renderer', 'dist', 'index.html'))
+      .href
 
 let db: DbClient | undefined
 
@@ -22,21 +28,11 @@ function createWindow() {
     },
   })
 
-  if (isDev) {
-    const url = process.env.VITE_DEV_SERVER_URL ?? 'http://localhost:5173'
-    win.loadURL(url).finally(() => {
-      win.show()
-      win.webContents.openDevTools({ mode: 'detach' })
-    })
-  } else {
-    const indexHtml = path.join(
-      app.getAppPath(),
-      'renderer',
-      'dist',
-      'index.html'
-    )
-    win.loadFile(indexHtml).finally(() => win.show())
-  }
+  lockToPage(win.webContents, PAGE_URL)
+  win.loadURL(PAGE_URL).finally(() => {
+    win.show()
+    if (isDev) win.webContents.openDevTools({ mode: 'detach' })
+  })
 }
 
 function openDb(): Promise<DbClient> {
@@ -62,7 +58,10 @@ async function start() {
     app.exit(1)
     return
   }
-  registerDbIpc(ipcMain, db, () => BrowserWindow.getAllWindows())
+  registerDbIpc(ipcMain, db, {
+    windows: () => BrowserWindow.getAllWindows(),
+    pageUrl: PAGE_URL,
+  })
   createWindow()
   app.on(
     'activate',

@@ -4,6 +4,7 @@ import {
   DB_CHANGED_CHANNEL,
   type DbResult,
 } from '../shared/contract'
+import { isSamePage } from './app-page'
 import type { DbClient } from './db/client'
 
 const FORBIDDEN: DbResult<never> = {
@@ -14,11 +15,13 @@ const FORBIDDEN: DbResult<never> = {
 export function registerDbIpc(
   ipcMain: Pick<IpcMain, 'handle'>,
   client: DbClient,
-  windows: () => BrowserWindow[]
+  { windows, pageUrl }: { windows: () => BrowserWindow[]; pageUrl: string }
 ): void {
-  const isAppPage = (event: IpcMainInvokeEvent) =>
-    event.senderFrame === event.sender.mainFrame &&
-    windows().some((window) => window.webContents === event.sender)
+  const isAppPage = ({ sender, senderFrame }: IpcMainInvokeEvent) =>
+    senderFrame !== null &&
+    senderFrame === sender.mainFrame &&
+    isSamePage(senderFrame.url, pageUrl) &&
+    windows().some((window) => window.webContents === sender)
 
   ipcMain.handle(DB_CALL_CHANNEL, (event, name: unknown, input: unknown) =>
     isAppPage(event) ? client.call(name, input) : FORBIDDEN
