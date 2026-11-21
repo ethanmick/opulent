@@ -8,6 +8,7 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true, // so wait-on works reliably
+    fs: { allow: [import.meta.dirname] }, // renderer imports ../src/shared
   },
   build: {
     outDir: 'dist', // => renderer/dist

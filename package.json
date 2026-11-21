@@ -1,10 +1,13 @@
 {
-  "name": "minimal-electron-vite-react-better-sqlite",
+  "name": "opulent",
   "version": "1.0.0",
   "description": "",
   "main": "dist/main/index.js",
   "scripts": {
     "build": "tsc && vite build",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.test.json && tsc -p renderer",
+    "smoke": "node scripts/smoke.mjs",
     "start": "electron .",
     "dev:renderer": "vite",
     "dev:main": "tsc -w --preserveWatchOutput",
@@ -14,7 +17,7 @@
     "dist": "pnpm build && electron-builder"
   },
   "build": {
-    "appId": "com.example.minimalbsqlite",
+    "appId": "com.ethanmick.opulent",
     "npmRebuild": false,
     "files": [
       "dist/**",
@@ -47,7 +50,8 @@
   "dependencies": {
     "better-sqlite3": "13.2.0",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/better-sqlite3": "9.6.0",
@@ -60,6 +64,7 @@
     "electron-builder": "26.18.0",
     "typescript": "7.0.2",
     "vite": "8.3.8",
+    "vitest": "5.1.1",
     "wait-on": "9.5.1"
   },
   "packageManager": "pnpm@10.11.0",

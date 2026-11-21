@@ -1,9 +1,14 @@
-import Database from 'better-sqlite3'
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
+import { openDbClient, type DbClient } from './db/client'
+import { threadSpawner } from './db/spawn'
+import { registerDbIpc } from './ipc'
 
-const isDev = !app.isPackaged // reliable dev/prod switch.  [oai_citation:2‡Electron](https://electronjs.org/docs/latest/api/app?utm_source=chatgpt.com)
+const isDev = !app.isPackaged
+const READER_THREADS = 2
+
+let db: DbClient | undefined
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -34,29 +39,55 @@ function createWindow() {
   }
 }
 
-function initDb() {
+function openDb(): Promise<DbClient> {
   const dbDir = app.getPath('userData')
-  if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true })
-  const dbPath = path.join(dbDir, 'app.db')
-
-  const db = new Database(dbPath)
-  db.pragma('journal_mode = WAL')
-  db.prepare('CREATE TABLE IF NOT EXISTS messages (text TEXT)').run()
-  db.prepare('INSERT INTO messages (text) VALUES (?)').run(
-    'hello from better-sqlite3'
-  )
-  const row = db.prepare('SELECT text FROM messages LIMIT 1').get()
-  console.log('Selected row:', row)
-  db.close()
+  fs.mkdirSync(dbDir, { recursive: true })
+  return openDbClient({
+    spawn: threadSpawner(
+      path.join(__dirname, 'db', 'worker.js'),
+      path.join(dbDir, 'app.db')
+    ),
+    readers: READER_THREADS,
+  })
 }
 
-app.whenReady().then(() => {
-  initDb()
+async function start() {
+  try {
+    db = await openDb()
+  } catch (error) {
+    dialog.showErrorBox(
+      'Cannot open the database',
+      error instanceof Error ? error.message : String(error)
+    )
+    app.exit(1)
+    return
+  }
+  registerDbIpc(ipcMain, db, () => BrowserWindow.getAllWindows())
   createWindow()
   app.on(
     'activate',
     () => BrowserWindow.getAllWindows().length === 0 && createWindow()
   )
+}
+
+// A second process would be a second writer on the same database file.
+if (app.requestSingleInstanceLock()) {
+  app.on('second-instance', () => {
+    const [win] = BrowserWindow.getAllWindows()
+    if (win?.isMinimized()) win.restore()
+    win?.focus()
+  })
+  app.whenReady().then(start)
+} else {
+  app.quit()
+}
+
+app.on('before-quit', (event) => {
+  if (!db) return
+  event.preventDefault()
+  const closing = db.close()
+  db = undefined
+  closing.finally(() => app.quit())
 })
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
